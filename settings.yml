@@ -1,0 +1,6 @@
+path_to_memex: E:\MEMEX_SANDBOX\_data\
+bib_all: E:\MEMEX_SANDBOX\bib\MeineBibliothek.bib
+bibtex_keys: E:\MEMEX_SANDBOX\bib\keys_to_yaml.yml
+language_keys: E:\MEMEX_SANDBOX\bib\bib\bibtex_languages.yml
+bib_single: "zotero_biblatex_single.bib"
+bib_top: "zotero_biblatex_top.bib"
