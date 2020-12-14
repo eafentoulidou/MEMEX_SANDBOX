@@ -1,4 +1,4 @@
-import os
+import os, re
 
 # generate path from bibtex code:
 def generatePublPath(pathToMemex, bibTexCode):
