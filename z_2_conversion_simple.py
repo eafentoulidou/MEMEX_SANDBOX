@@ -7,12 +7,12 @@ def bibLoad(bibTexFile):
 
     bibDic = {}
 
-   with open(r"E:\MEMEX_SANDBOX\bib\MeineBibliothek.bib", "r", encoding="utf8") as f1:
-        records = f1.read().split("\n@")
+with open(r"E:\MEMEX_SANDBOX\bib\MeineBibliothek.bib", "r", encoding="utf8") as f1:
+       records = f1.read().split("\n@")
 
-        for record in records[1:]:
-            # let process ONLY those records that have PDFs
-            if ".pdf" in record.lower():
+    for record in records[1:]:
+           # let process ONLY those records that have PDFs
+        if ".pdf" in record.lower():
 
                 record = record.strip().split("\n")[:-1]
 

@@ -1,0 +1,6 @@
+user % tesseract --list-langs
+
+List of available languages (162):
+ell
+eng
+ita
