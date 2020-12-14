@@ -6,13 +6,10 @@ import functions
 
 settingsFile = "E:\MEMEX_SANDBOX\settings.yml"
 settingsFile = "settings.yml"
-settings = yaml.load(open(settingsFile))
+settings = functions.loadYmlSettings(settingsFile)
 
 memexPath = settings["path_to_memex"]
-langKeys = yaml.load(open(settings["language_keys"]))
-
-pathToMemex = "E:\MEMEX_SANDBOX\_data\\"
-
+langKeys = functions.loadYmlSettings(settings["language_keys"])
 
 def removeCommentsFromPDF(pathToPdf):
     with open(pathToPdf, 'rb') as pdf_obj:
@@ -32,7 +29,7 @@ def ocrPublication(pathToMemex, citationKey, language):
     jsonFile = os.path.join(publPath, citationKey + ".json")
     saveToPath = os.path.join(publPath, "pages")
 
-    pdfFileTemp = RemoveComments.removeCommentsFromPDF(pdfFile)
+    pdfFileTemp = removeCommentsFromPDF(pdfFile)
 
     if not os.path.isfile(jsonFile):
         if not os.path.exists(saveToPath):
