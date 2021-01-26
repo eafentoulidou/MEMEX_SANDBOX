@@ -1,5 +1,11 @@
 import os, yaml
 
+###########################################################
+# VARIABLES ###############################################
+###########################################################
+
+settingsFile = "settings.yml"
+vars = yaml.load(open(settingsFile))
 
 ###########################################################
 # FUNCTIONS ###############################################
@@ -7,11 +13,11 @@ import os, yaml
 
 # analyze bibTeX data; identify what needs to be fixed
 
-def bibAnalyze():
+def bibAnalyze(bibTexFile):
 
     tempDic = {}
 
-    with open(r"E:\MEMEX_SANDBOX\bib\MeineBibliothek.bib", "r", encoding="utf8") as f1:
+    with open(bibTexFile, "r", encoding="utf8") as f1:
         records = f1.read()
         records = records.split("\n@")
 
@@ -37,10 +43,7 @@ def bibAnalyze():
     results = sorted(results, reverse=True)
     results = "\n".join(results)
 
-    with open(r"E:\MEMEX_SANDBOX\bibtex_analysis.txt", "w", encoding="utf8") as f9:
+    with open("bibtex_analysis.txt", "w", encoding="utf8") as f9:
         f9.write(results)
-    print("Done")
-bibAnalyze()
 
-
-
+bibAnalyze(vars['bib_all'])

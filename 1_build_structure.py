@@ -1,18 +1,25 @@
 import os, shutil, re
 import yaml
 
-settingsFile = "E:\MEMEX_SANDBOX/settings.yml"
+###########################################################
+# VARIABLES ###############################################
+###########################################################
+
+settingsFile = "./settings.yml"
 settings = yaml.load(open(settingsFile))
 
 memexPath = settings["path_to_memex"]
+
+###########################################################
+# FUNCTIONS ###############################################
+###########################################################
 
 # load bibTex Data into a dictionary
 def loadBib(bibTexFile):
 
     bibDic = {}
-    recordsNeedFixing = []
 
-    with open(r"E:\MEMEX_SANDBOX\bib\MeineBibliothek.bib", "r", encoding="utf8") as f1:
+    with open(bibTexFile, "r", encoding="utf8") as f1:
         records = f1.read().split("\n@")
 
         for record in records[1:]:
@@ -44,7 +51,7 @@ def loadBib(bibTexFile):
                             temp = val.split(";")
 
                             for t in temp:
-                                if ".pdf" in t:
+                                if t.endswith(".pdf"):
                                     val = t
 
                             bibDic[rCite][key] = val
@@ -76,18 +83,23 @@ def processBibRecord(pathToMemex, bibRecDict):
         with open(bibFilePath, "w", encoding="utf8") as f9:
             f9.write(bibRecDict["complete"])
 
-    pdfFileSRC = os.path.join("E:\\MEMEX_SANDBOX\\bib", bibRecDict["file"])
-    pdfFileDST = os.path.join(tempPath, "%s.pdf" % bibRecDict["rCite"])
-    if not os.path.isfile(pdfFileDST): # this is to avoid copying that had been already copied.
-        shutil.copyfile(pdfFileSRC, pdfFileDST)
-        print("copied " + pdfFileSRC + " to " + pdfFileDST)
+        pdfFileSRC = bibRecDict["file"]
+        pdfFileSRC = pdfFileSRC.replace("\\\\", "\\")
+        pdfFileSRC = pdfFileSRC.replace("\\:", ":")
+        pdfFileDST = os.path.join(tempPath, "%s.pdf" % bibRecDict["rCite"])
+        if not os.path.isfile(pdfFileDST): # this is to avoid copying that had been already copied.
+            shutil.copyfile(pdfFileSRC, pdfFileDST)
 
 
-def processAllRecords(bibData, memexPath):
+###########################################################
+# PROCESS ALL RECORDS #####################################
+###########################################################
+
+def processAllRecords(bibData):
     for k,v in bibData.items():
         processBibRecord(memexPath, v)
 
 bibData = loadBib(settings["bib_all"])
-processAllRecords(bibData, memexPath)
+processAllRecords(bibData)
 
 print("Done!")

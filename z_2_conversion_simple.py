@@ -1,18 +1,40 @@
 import re
 import yaml
 
+"""
+1. load bibtex file
+    - bibliography should be curated in Zotero (one can program cleaning procedures into the script, but this is not as reliable);
+    - loading bibtex data, keep only those records that have PDFs;
+    - some processing might be necessary (like picking one file out of two and more)
+2. convert into other formats
+    - csv
+    - json
+    - yml
+"""
+
+###########################################################
+# VARIABLES ###############################################
+###########################################################
+
+settingsFile = "settings.yml"
+settings = yaml.load(open(settingsFile))
+bibKeys = yaml.load(open("zotero_biblatex_keys.yml"))
+
+###########################################################
+# FUNCTIONS ###############################################
+###########################################################
 
 # load bibTex Data into a dictionary
 def bibLoad(bibTexFile):
 
     bibDic = {}
 
-with open(r"E:\MEMEX_SANDBOX\bib\MeineBibliothek.bib", "r", encoding="utf8") as f1:
-       records = f1.read().split("\n@")
+    with open(bibTexFile, "r", encoding="utf8") as f1:
+        records = f1.read().split("\n@")
 
-    for record in records[1:]:
-           # let process ONLY those records that have PDFs
-        if ".pdf" in record.lower():
+        for record in records[1:]:
+            # let process ONLY those records that have PDFs
+            if ".pdf" in record.lower():
 
                 record = record.strip().split("\n")[:-1]
 
@@ -38,7 +60,9 @@ with open(r"E:\MEMEX_SANDBOX\bib\MeineBibliothek.bib", "r", encoding="utf8") as 
     print("="*80)
     return(bibDic)
 
-# CONVERSION FUNCTIONS
+###########################################################
+# CONVERSION FUNCTIONS ####################################
+###########################################################
 
 import json
 def convertToJSON(bibTexFile):
