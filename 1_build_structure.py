@@ -16,28 +16,28 @@ memexPath = settings["path_to_memex"]
 
 # load bibTex Data into a dictionary
 def loadBib(bibTexFile):
-
+# create empty dictionary
     bibDic = {}
-
+# save the biblatex file as a list of bibliographical entries (records)
     with open(bibTexFile, "r", encoding="utf8") as f1:
         records = f1.read().split("\n@")
-
+# save each entry as a list of keys and values (record)
         for record in records[1:]:
             # let process ONLY those records that have PDFs
             if ".pdf" in record.lower():
                 completeRecord = "\n@" + record
 
                 record = record.strip().split("\n")[:-1]
-
+# split the first line by {. The second part is the citation key. It shall not contain commas or dashes.
                 rType = record[0].split("{")[0].strip()
                 rCiteRaw = record[0].split("{")[1].strip().replace(",", "")
                 rCite = rCiteRaw.replace("-", "")
-
+# In the dictionary, create sub-dictionaries of each entry by the citation key.
                 bibDic[rCite] = {}
                 bibDic[rCite]["rCite"] = rCite
                 bibDic[rCite]["rType"] = rType
                 bibDic[rCite]["complete"] = completeRecord
-
+# put the rest of the bibliographical entry as key-value pairs into the sub-dictionaries.
                 for r in record[1:]:
                     key = r.split("=")[0].strip()
                     val = r.split("=")[1].strip()
