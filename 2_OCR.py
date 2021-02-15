@@ -38,11 +38,12 @@ def ocrPublication(citationKey, language):
         
         # start process images and extract text
         print("\t>>> OCR-ing: %s" % citationKey)
-
+# create an empty dictionary for the OCR results. 
         textResults = {}
         images = pdf2image.convert_from_path(pdfFile)
         pageTotal = len(images)
         pageCount = 1
+        #OCR the text by image (page) and put it into this dictionary with the page number (= image number) as key
         for image in images:
             text = pytesseract.image_to_string(image, lang=language)
             textResults["%04d" % pageCount] = text
@@ -53,7 +54,7 @@ def ocrPublication(citationKey, language):
 
             print("\t\t%04d/%04d pages" % (pageCount, pageTotal))
             pageCount += 1
-
+# save the dictionary as a json file
         with open(jsonFile, 'w', encoding='utf8') as f9:
             json.dump(textResults, f9, sort_keys=True, indent=4, ensure_ascii=False)
     
@@ -82,16 +83,20 @@ ocrPublication("AbdurasulovMaking2020", "eng")
 # processing time roughly in half.
 
 def processAllRecords(bibDataFile):
+    # load the bib file as dictionary using the function from previous step
     bibData = functions.loadBib(bibDataFile)
+    # save the keys of the dictionary bibData as a list
     keys = list(bibData.keys())
     random.shuffle(keys)
     print
     print(str(keys))
-
+# in a loop, process each key from the list keys (i.e. each record by citation key)
     for key in keys:
         bibRecord = bibData[key]
+        # run the function from the previous step that creates a path with pdf and bib files, if not already there
         functions.processBibRecord(settings["path_to_memex"], bibRecord)
         language = functions.identifyLanguage(bibRecord, "eng")
+        # run the function that saves ocr-ed text as json files and created .png images for each page
         ocrPublication(bibRecord["rCite"], language)
 
 ###########################################################
