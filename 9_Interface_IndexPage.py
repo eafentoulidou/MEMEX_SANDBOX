@@ -64,9 +64,12 @@ publicationsTemplate = """
 def formatSearches(pathToMemex):
     with open(settings["template_search"], "r", encoding="utf8") as f1:
         indexTmpl = f1.read()
+    # put the "nonsensical" .searchResults files from previous step into a dictionary
     dof = functions.dicOfRelevantFiles(pathToMemex, ".searchResults")
     # format individual search pages
+    # create empty list
     toc = []
+    # in a loop, go through the files with the search results and save them as json files
     for file, pathToFile in dof.items():
         searchResults = []
         data = json.load(open(pathToFile))
@@ -74,14 +77,19 @@ def formatSearches(pathToMemex):
         template = "<tr> <td>%s</td> <td>%s</td> <td>%s</td> <td>%s</td></tr>"
 
         # variables
+        # save the nonsensical search results files as html
         linkToSearch = os.path.join("searches", file+".html")
+        # link to these files
         pathToPage = '<a href="%s"><i>read</i></a>' % linkToSearch
+        # in the empty list created above, fill in one by one items as rows of a 4-column table consisting of the path to the results page,
+        # the search string, the number of matches (i.e. the length of the list of matches), and the time of the search
         searchString = '<div class="searchString">%s</div>' % data.pop("searchString")
         timeStamp = data.pop("timestamp")
         tocItem = template % (pathToPage, searchString, len(data), timeStamp)
         toc.append(tocItem)
 
         # generate the results page
+        # save the keys of the search results as a list
         keys = sorted(data.keys(), reverse=True)
         for k in keys:
             searchResSingle = []
@@ -99,11 +107,13 @@ def formatSearches(pathToMemex):
             searchResults.append(searchResSingle)
         
         searchResults = "<h2>SEARCH RESULTS FOR: <i>%s</i></h2>\n\n" % searchString + "\n\n".join(searchResults)
+        # fill in the string of the search results into the template
         with open(pathToFile.replace(".searchResults", ".html"), "w", encoding="utf8") as f9:
             f9.write(indexTmpl.replace("@MAINCONTENT@", searchResults))
         #os.remove(pathToFile)
         
     #input("\n".join(toc))
+    # put the list with the search contents (4-column table) created above into the search template and save
     toc = searchesTemplate.replace("@TABLECONTENTS@", "\n".join(toc))
     return(toc)
 

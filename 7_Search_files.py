@@ -16,14 +16,15 @@ settings = functions.loadYmlSettings("settings.yml")
 
 def searchOCRresults(pathToMemex, searchString):
     print("SEARCHING FOR: `%s`" % searchString)
+# run the function (from previous step) that creates a dictionary "files" of the paths to the json files. Create an empty dictionary.
     files = functions.dicOfRelevantFiles(pathToMemex, ".json")
     results = {}
-
+# run a loop for each item of the dictionary "files", so that a json file is created from each path
     for citationKey, pathToJSON in files.items():
         data = json.load(open(pathToJSON))
         #print(citationKey)
         count = 0
-
+# for each page, i.e. key "page number" in the json file, search for matches for the search string and save in a dictionary by the citation key and page number
         for pageNumber, pageText in data.items():
             if re.search(r"\b%s\b" % searchString, pageText, flags=re.IGNORECASE):
                 if citationKey not in results:
@@ -52,7 +53,7 @@ def searchOCRresults(pathToMemex, searchString):
             results["timestamp"] = currentTime
             # add search string (as submitted)
             results["searchString"] = searchString
-
+# save the search results in a 'nonsensical' path, then save them as json files
     saveWith = re.sub("\W+", "", searchString)
     saveTo = os.path.join(pathToMemex, "searches", "%s.searchResults" % saveWith)
     with open(saveTo, 'w', encoding='utf8') as f9c:
@@ -61,7 +62,7 @@ def searchOCRresults(pathToMemex, searchString):
 ###########################################################
 # RUN THE MAIN CODE #######################################
 ###########################################################
-
+# give a search phrase as imput from the shell
 searchPhrase  = input("Enter a search phrase: ")
 #searchPhrase  = r"corpus\W*driven"
 #searchPhrase  = r"multi\W*verse"
@@ -69,4 +70,5 @@ searchPhrase  = input("Enter a search phrase: ")
 #searchPhrase  = r"corpus-?based"
 
 searchOCRresults(settings["path_to_memex"], searchPhrase)
+# execute the next script to generate html files from the searches
 exec(open("9_Interface_IndexPage.py").read())
