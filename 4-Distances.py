@@ -1,66 +1,42 @@
 import pandas as pd
-import sklearn
-import functions
-
-import os, yaml, json, random
-import re
-
 from sklearn.feature_extraction.text import (CountVectorizer, TfidfTransformer)
 from sklearn.metrics.pairwise import cosine_similarity
 
+import os, yaml, json, re, sys
+
+# SCRIPT WITH OUR PREVIOUS FUNCTIONS
+import functions
+
+###########################################################
+# VARIABLES ###############################################
+###########################################################
+
 settings = functions.loadYmlSettings("settings.yml")
 
-ocrFiles = functions.dicOfRelevantFiles(settings["path_to_memex"], ".json")
-citeKeys = list(ocrFiles.keys())
+###########################################################
+# MAIN FUNCTIONS ##########################################
+###########################################################
 
-docList   = []
-docIdList = []
+def filterTfidfDictionary(dictionary, threshold, lessOrMore):
+    dictionaryFilt = {}
+    for item1, citeKeyDist in dictionary.items():
+        dictionaryFilt[item1] = {}
+        for item2, value in citeKeyDist.items():
+            if lessOrMore == "less":
+                if value <= threshold:
+                    if item1.split("_")[0] != item2.split("_")[0]:
+                        dictionaryFilt[item1][item2] = value
+            elif lessOrMore == "more":
+                if value >= threshold:
+                    if item1.split("_")[0] != item2.split("_")[0]:
+                        dictionaryFilt[item1][item2] = value
+            else:
+                sys.exit("`lessOrMore` parameter must be `less` or `more`")
 
-for citeKey in citeKeys:
-    docData = json.load(open(ocrFiles[citeKey], "r", encoding="utf8"))
-    
-    docId = citeKey
-    doc   = " ".join(docData.values())
+        if dictionaryFilt[item1] == {}:
+            dictionaryFilt.pop(item1)
 
-    doc   = re.sub(r'(\w)-\n(\w)', r'\1\2', doc)
-    doc   = re.sub('\W+', ' ', doc)
-    doc   = re.sub('\d+', ' ', doc)
-    doc   = re.sub(' +', ' ', doc)
-
-    docList.append(doc)
-    docIdList.append(docId)
-
-    vectorizer = CountVectorizer(ngram_range=(1,1), min_df=3, max_df=0.9)
-    countVectorized = vectorizer.fit_transform(docList)
-    tfidfTransformer = TfidfTransformer(smooth_idf=True, use_idf=True)
-    vectorized = tfidfTransformer.fit_transform(countVectorized) # https://en.wikipedia.org/wiki/Sparse_matrix
-    cosineMatrix = cosine_similarity(vectorized)
-
-    tfidfTable = pd.DataFrame(vectorized.toarray(), index=docIdList, columns=vectorizer.get_feature_names())
-   # print("tfidfTable Shape: ", tfidfTable.shape) # optional
-    tfidfTable = tfidfTable.transpose()
-    tfidfTableDic = tfidfTable.to_dict()
-
-    def filterTfidfDictionary(dictionary, threshold, lessOrMore):
-        dictionaryFilt = {}
-        for item1, citeKeyDist in dictionary.items():
-            dictionaryFilt[item1] = {}
-            for item2, value in citeKeyDist.items():
-                if lessOrMore == "less":
-                    if value <= threshold:
-                        if item1.split("_")[0] != item2.split("_")[0]:
-                            dictionaryFilt[item1][item2] = value
-                elif lessOrMore == "more":
-                    if value >= threshold:
-                        if item1.split("_")[0] != item2.split("_")[0]:
-                            dictionaryFilt[item1][item2] = value
-                else:
-                    sys.exit("`lessOrMore` parameter must be `less` or `more`")
-
-            if dictionaryFilt[item1] == {}:
-                dictionaryFilt.pop(item1)
-
-        return(dictionaryFilt)
+    return(dictionaryFilt)
 
 import math
 # a function for grouping pages into clusters of y number of pages
@@ -131,7 +107,7 @@ def tfidfPublications(pathToMemex, PageOrPubl):
 
     # PART 3: calculate tfidf for all loaded publications and distances
     print("\tgenerating tfidf matrix & distances...")
-    stopWords = functions.loadMultiLingualStopWords(["eng", "deu", "fre", "ita"])
+    stopWords = functions.loadMultiLingualStopWords(["eng", "deu", "fre"])
     vectorizer = CountVectorizer(ngram_range=(1,1), min_df=5, max_df=0.5, stop_words = stopWords)
     countVectorized = vectorizer.fit_transform(docList)
     tfidfTransformer = TfidfTransformer(smooth_idf=True, use_idf=True)
@@ -166,5 +142,3 @@ def tfidfPublications(pathToMemex, PageOrPubl):
 
 tfidfPublications(settings["path_to_memex"], "publications")
 tfidfPublications(settings["path_to_memex"], "pages")
-
-print("done")

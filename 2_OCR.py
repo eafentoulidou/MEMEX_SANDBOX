@@ -19,42 +19,7 @@ settings = functions.loadYmlSettings("settings.yml")
 
 # function OCR a PDF, saving each page as an image and
 # saving OCR results into a JSON file
-def ocrPublicationOld(pathToMemex, citationKey, language):
-    # generate and create necessary paths
-    publPath = functions.generatePublPath(pathToMemex, citationKey)
-    pdfFile  = os.path.join(publPath, citationKey + ".pdf")
-    jsonFile = os.path.join(publPath, citationKey + ".json") # OCR results will be saved here
-    saveToPath = os.path.join(publPath, "pages") # we will save processed images here
 
-    # first we need to check whether this publication has been already processed
-    if not os.path.isfile(jsonFile):
-        # let's make sure that saveToPath also exists
-        if not os.path.exists(saveToPath):
-            os.makedirs(saveToPath)
-        
-        # start process images and extract text
-        print("\t>>> OCR-ing: %s" % citationKey)
-
-        textResults = {}
-        images = pdf2image.convert_from_path(pdfFile)
-        pageTotal = len(images)
-        pageCount = 1
-        for image in images:
-            text = pytesseract.image_to_string(image, lang=language)
-            textResults["%04d" % pageCount] = text
-
-            image = image.convert('1') # binarizes image, reducing its size
-            finalPath = os.path.join(saveToPath, "%04d.png" % pageCount)
-            image.save(finalPath, optimize=True, quality=10)
-
-            print("\t\t%04d/%04d pages" % (pageCount, pageTotal))
-            pageCount += 1
-
-        with open(jsonFile, 'w', encoding='utf8') as f9:
-            json.dump(textResults, f9, sort_keys=True, indent=4, ensure_ascii=False)
-    
-    else: # in case JSON file already exists
-        print("\t>>> %s has already been OCR-ed..." % citationKey)
 
 def ocrPublication(citationKey, language):
     # generate and create necessary paths
@@ -64,6 +29,8 @@ def ocrPublication(citationKey, language):
     saveToPath = os.path.join(publPath, "pages") # we will save processed images here
 
     # first we need to check whether this publication has been already processed
+    if not os.path.isfile(pdfFile):
+        return
     if not os.path.isfile(jsonFile):
         # let's make sure that saveToPath also exists
         if not os.path.exists(saveToPath):
@@ -92,13 +59,13 @@ def ocrPublication(citationKey, language):
     
     else: # in case JSON file already exists
         print("\t>>> %s has already been OCR-ed..." % citationKey)
-ocrPublication("WelbersText2017", "eng")
+
 
 ###########################################################
 # FUNCTIONS TESTING #######################################
 ###########################################################
 
-#ocrPublication("AbdurasulovMaking2020", "eng")
+ocrPublication("AbdurasulovMaking2020", "eng")
 
 ###########################################################
 # PROCESS ALL RECORDS: APPROACH 2 #########################
@@ -114,18 +81,20 @@ ocrPublication("WelbersText2017", "eng")
 # your machine has). Even running two scripts will cut
 # processing time roughly in half.
 
-#def processAllRecords(bibDataFile):
- #   bibData = functions.loadBib(bibDataFile)
-  #  keys = list(bibData.keys())
-   # random.shuffle(keys)
+def processAllRecords(bibDataFile):
+    bibData = functions.loadBib(bibDataFile)
+    keys = list(bibData.keys())
+    random.shuffle(keys)
+    print
+    print(str(keys))
 
-    #for key in keys:
-     #   bibRecord = bibData[key]
-      #  functions.processBibRecord(settings["path_to_memex"], bibRecord)
-       # language = functions.identifyLanguage(bibRecord, "eng")
-        #ocrPublication(bibRecord["rCite"], language)
+    for key in keys:
+        bibRecord = bibData[key]
+        functions.processBibRecord(settings["path_to_memex"], bibRecord)
+        language = functions.identifyLanguage(bibRecord, "eng")
+        ocrPublication(bibRecord["rCite"], language)
 
 ###########################################################
 
-#processAllRecords(settings["bib_all"])
+processAllRecords(settings["bib_all"])
 print("Done!")

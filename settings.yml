@@ -19,6 +19,7 @@ page_cosDist: results_cosineDist_pages.dataJson
 # TEMPLATES AND CONTENT FILES FOR THE INTERFACE
 template_page: ./_misc/template_page.html
 template_index: ./_misc/template_index.html
+template_search: ./_misc/template_search.html
 content_index: ./_misc/content_index.html
 
 # GENERATED FILES AND EXTENSIONS

@@ -30,7 +30,8 @@ def loadBib(bibTexFile):
                 record = record.strip().split("\n")[:-1]
 
                 rType = record[0].split("{")[0].strip()
-                rCite = record[0].split("{")[1].strip().replace(",", "")
+                rCiteRaw = record[0].split("{")[1].strip().replace(",", "")
+                rCite = rCiteRaw.replace("-", "")
 
                 bibDic[rCite] = {}
                 bibDic[rCite]["rCite"] = rCite
@@ -69,9 +70,9 @@ def generatePublPath(pathToMemex, bibTexCode):
     return(directory)
 
 # process a single bibliographical record: 1) create its unique path; 2) save a bib file; 3) save PDF file 
-def processBibRecord(pathToMemex, bibRecDict):
+def processBibRecord(pathToMemex, bibRecDict):    
+    
     tempPath = generatePublPath(pathToMemex, bibRecDict["rCite"])
-
     print("="*80)
     print("%s :: %s" % (bibRecDict["rCite"], tempPath))
     print("="*80)
